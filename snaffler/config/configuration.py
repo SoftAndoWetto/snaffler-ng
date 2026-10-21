@@ -133,6 +133,7 @@ class ScanningConfig:
     match_context_bytes: int = 200
     max_depth: Optional[int] = None  # Max directory recursion depth (None = unlimited)
     match_filter: Optional[str] = None  # Regex filter for findings (path/rule/match/context)
+    exclude_binaries: bool = False  # Skip files detected as binary via magic numbers/content heuristic
     cert_passwords: List[str] = field(
         default_factory=lambda: list(DEFAULT_CERT_PASSWORDS)
     )

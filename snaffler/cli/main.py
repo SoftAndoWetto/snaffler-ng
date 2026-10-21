@@ -440,6 +440,12 @@ def main(
             help="Only output findings matching this regex (applied to path, rule, match, context)",
             rich_help_panel="Scanning",
         ),
+        exclude_binaries: bool = typer.Option(
+            False,
+            "--exclude-binaries",
+            help="Skip files detected as binary (magic numbers + content heuristic, no extension list)",
+            rich_help_panel="Scanning",
+        ),
 
         # ---------------- ADVANCED ----------------
         max_threads: int = typer.Option(
@@ -683,6 +689,9 @@ def main(
         except re.error as exc:
             raise typer.BadParameter(f"Invalid --match regex: {exc}")
         cfg.scanning.match_filter = match_filter
+
+    if _explicit("exclude_binaries"):
+        cfg.scanning.exclude_binaries = exclude_binaries
 
     if snaffle_path:
         cfg.scanning.snaffle = True

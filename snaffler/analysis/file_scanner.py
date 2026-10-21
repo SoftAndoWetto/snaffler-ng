@@ -14,6 +14,7 @@ from snaffler.analysis.model.file_context import FileContext
 from snaffler.analysis.model.file_result import FileResult
 from snaffler.classifiers.evaluator import RuleEvaluator
 from snaffler.classifiers.rules import MatchLocation, MatchAction, Triage
+from snaffler.utils.binary_detector import is_binary
 from snaffler.utils.fatal import check_fatal_os_error
 
 logger = logging.getLogger("snaffler")
@@ -73,6 +74,7 @@ class FileScanner:
         self._max_read_bytes = cfg.scanning.max_read_bytes
         self._match_context_bytes = cfg.scanning.match_context_bytes
 
+        self._exclude_binaries = getattr(cfg.scanning, 'exclude_binaries', False)
     # -------------------------------------------------------------- Results
 
     def _filter_result(
@@ -296,6 +298,12 @@ class FileScanner:
         )
         if not data:
             # Access denied or empty — filter whatever we have from Phase 1
+            if check._best_result:
+                return self._filter_result(check._best_result)
+            return None
+
+        if self._exclude_binaries and is_binary(data):
+            logger.debug(f"Skipping binary file (--exclude-binaries): {file_path}")
             if check._best_result:
                 return self._filter_result(check._best_result)
             return None
